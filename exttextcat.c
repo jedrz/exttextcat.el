@@ -17,6 +17,7 @@ int read_from_file(const char* path)
     read_chars_len = fread(buffer, sizeof(char), MAX_BUFFER_SIZE, fp);
     if (read_chars_len == 0) {
         fprintf(stderr, "Error reading file\n");
+        exit(1);
     } else {
         buffer[++read_chars_len] = '\0';
     }
