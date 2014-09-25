@@ -4,6 +4,8 @@
   '(("/usr/share/libexttextcat/en.lm" . "english")
     ("/usr/share/libexttextcat/pl.lm" . "polish")))
 
+(defvar exttextcat--fpdb-config-file nil)
+
 ;;;###autoload
 (defun exttextcat-guess-language-buffer ()
   (let ((language (exttextcat-get-language-for-buffer)))
@@ -30,16 +32,17 @@
                                      nil
                                      (current-buffer)
                                      nil
-                                     (exttextcat-build-fpdb-config-file)
+                                     (exttextcat-get-fpdb-config-file)
                                      input-file))
           (cmd-output (buffer-string)))
       (cons exit-status cmd-output))))
 
-(defun exttextcat-build-fpdb-config-file ()
-  (let ((temp-file (make-temp-file "fpdb.conf")))
-    (with-temp-file temp-file
-      (insert (exttextcat-build-fpdb-config)))
-    temp-file))
+(defun exttextcat-get-fpdb-config-file ()
+  (unless (and exttextcat--fpdb-config-file (file-exists-p exttextcat--fpdb-config-file))
+    (setq exttextcat--fpdb-config-file (make-temp-file "fpdb.conf"))
+    (with-temp-file exttextcat--fpdb-config-file
+      (insert (exttextcat-build-fpdb-config))))
+  exttextcat--fpdb-config-file)
 
 (defun exttextcat-build-fpdb-config ()
   (mapconcat (lambda (model-language)
