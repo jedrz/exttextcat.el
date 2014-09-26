@@ -8,6 +8,7 @@
 
 ;;;###autoload
 (defun exttextcat-guess-language-buffer ()
+  (interactive)
   (let ((language (exttextcat-get-language-for-buffer)))
     (message "Setting language buffer to %s" language)
     (ispell-change-dictionary language)))
