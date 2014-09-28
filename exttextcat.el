@@ -46,7 +46,7 @@ If the language could not be determined returns nil."
   "Extract language of library wrapper output.
 
 Returns nil if language could not be determined."
-  (let ((maybe-language (substring lang-output 1 (1- (length lang-output)))))
+  (let ((maybe-language (substring lang-output 1 (- (length lang-output) 2))))
     (unless (string-match-p "\\]\\[" maybe-language)
       maybe-language)))
 
