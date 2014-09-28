@@ -39,7 +39,9 @@ If the language could not be determined returns nil."
          (exit-status (car exit-status-output))
          (output (cdr exit-status-output)))
     (unless (zerop exit-status)
-      (error "Program exited with %d exit code" exit-status))
+      (error "Program exited with %d exit code and output: %s"
+             exit-status
+             output))
     (exttextcat-extract-lang output)))
 
 (defun exttextcat-extract-lang (lang-output)
