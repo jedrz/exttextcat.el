@@ -59,6 +59,8 @@ Cons cell of exit status and output is returned."
   (setq input-file (or input-file buffer-file-name))
   (unless input-file
     (error "Buffer is not visiting file"))
+  (unless (file-readable-p input-file)
+    (error "File does not exist"))
   (unless (file-executable-p exttextcat-executable)
     (error "Call `exttextcat-install-wrapper' command to build library wrapper"))
   (with-temp-buffer
