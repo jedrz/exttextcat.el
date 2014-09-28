@@ -17,8 +17,11 @@
 (defun exttextcat-guess-language-buffer ()
   (interactive)
   (let ((language (exttextcat-get-language-for-buffer)))
-    (message "Setting language buffer to %s" language)
-    (ispell-change-dictionary language)))
+    (if language
+        (progn
+          (message "Setting language buffer to %s" language)
+          (ispell-change-dictionary language))
+      (message "Buffer language could not be determined"))))
 
 (defun exttextcat-get-language-for-buffer ()
   (let* ((exit-status-output (exttextcat-call-c-wrapper))
@@ -29,7 +32,9 @@
     (exttextcat-extract-lang output)))
 
 (defun exttextcat-extract-lang (lang-output)
-  (substring lang-output 1 (- (length lang-output) 2)))
+  (let ((maybe-language (substring lang-output 1 (1- (length lang-output)))))
+    (unless (string-match-p "\\]\\[" maybe-language)
+      maybe-language)))
 
 (defun exttextcat-call-c-wrapper (&optional input-file)
   (setq input-file (or input-file buffer-file-name))
