@@ -52,26 +52,48 @@ Returns nil if language could not be determined."
     (unless (string-match-p "\\]\\[" maybe-language)
       maybe-language)))
 
-(defun exttextcat-call-c-wrapper (&optional input-file)
-  "Call library wrapper on INPUT-FILE or current buffer file name.
+(defun exttextcat-call-c-wrapper ()
+  (let ((call-wrapper-fn
+         (apply 'apply-partially
+                (if (and buffer-file-name (file-readable-p buffer-file-name))
+                    (list 'exttextcat-call-c-wrapper-on-file buffer-file-name)
+                  (list 'exttextcat-call-c-wrapper-on-buffer (current-buffer))))))
+    (exttextcat-call-c-wrapper-with-fn call-wrapper-fn)))
 
-Cons cell of exit status and output is returned."
-  (setq input-file (or input-file buffer-file-name))
-  (unless input-file
-    (error "Buffer is not visiting file"))
-  (unless (file-readable-p input-file)
-    (error "File does not exist"))
+(defun exttextcat-call-c-wrapper-with-fn (call-process-fn)
+  "Call CALL-PROCESS-FN on `exttextcat-executable' fpdb config file and output buffer.
+
+The function is expected to return exit status and process output
+in given buffer."
   (unless (file-executable-p exttextcat-executable)
     (error "Call `exttextcat-install-wrapper' command to build library wrapper"))
   (with-temp-buffer
-    (let ((exit-status (call-process exttextcat-executable
-                                     nil
-                                     (current-buffer)
-                                     nil
-                                     (exttextcat-get-fpdb-config-file)
-                                     input-file))
+    (let ((exit-status (funcall call-process-fn
+                                exttextcat-executable
+                                (exttextcat-get-fpdb-config-file)
+                                (current-buffer)))
           (cmd-output (buffer-string)))
       (cons exit-status cmd-output))))
+
+(defun exttextcat-call-c-wrapper-on-file (input-file executable config-file output-buffer)
+  "Call process on INPUT-FILE."
+  (call-process executable
+                nil
+                output-buffer
+                nil
+                config-file
+                input-file))
+
+(defun exttextcat-call-c-wrapper-on-buffer (input-buffer executable config-file output-buffer)
+  "Call process on INPUT-BUFFER."
+  (with-current-buffer input-buffer
+    (call-process-region (point-min)
+                         (point-max)
+                         executable
+                         nil
+                         output-buffer
+                         nil
+                         config-file)))
 
 (defun exttextcat-get-fpdb-config-file ()
   "Get and creates if needed library config file."
