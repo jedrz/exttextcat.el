@@ -45,6 +45,9 @@ If the language could not be determined returns nil."
                output))))
 
 (defun exttextcat-find-matching-language (language)
+  "Check if LANGUAGE is defined in `exttextcat-language-models'.
+
+If is then return LANGUAGE otherwise nil."
   (let ((known-languages (mapcar 'cdr exttextcat-language-models)))
     (if (member language known-languages)
         language
