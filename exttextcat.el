@@ -38,13 +38,19 @@ If the language could not be determined returns nil."
   (let* ((exit-status-output (exttextcat-call-c-wrapper))
          (exit-status (car exit-status-output))
          (output (cdr exit-status-output)))
-    (unless (zerop exit-status)
-      (error "Program exited with %d exit code and output: %s"
-             exit-status
-             output))
-    (exttextcat-extract-lang output)))
+    (if (zerop exit-status)
+        (exttextcat-find-matching-language (exttextcat-extract-language output))
+      (message "Program exited with %d exit code and output: %s"
+               exit-status
+               output))))
 
-(defun exttextcat-extract-lang (lang-output)
+(defun exttextcat-find-matching-language (language)
+  (let ((known-languages (mapcar 'cdr exttextcat-language-models)))
+    (if (member language known-languages)
+        language
+      nil)))
+
+(defun exttextcat-extract-language (lang-output)
   "Extract language of library wrapper output.
 
 Returns nil if language could not be determined."
