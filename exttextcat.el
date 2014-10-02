@@ -42,7 +42,8 @@ If the language could not be determined returns nil."
         (exttextcat-find-matching-language (exttextcat-extract-language output))
       (message "Program exited with %d exit code and output: %s"
                exit-status
-               output))))
+               output)
+      nil)))
 
 (defun exttextcat-find-matching-language (language)
   "Check if LANGUAGE is defined in `exttextcat-language-models'.
