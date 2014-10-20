@@ -25,7 +25,7 @@ Language name is used as ispell dictionary name.")
   "Guess language of current buffer."
   (interactive)
   (let ((language (exttextcat-get-language-for-buffer)))
-    (if language
+    (if (and language (not (string= language "")))
         (progn
           (message "Setting language buffer to %s" language)
           (ispell-change-dictionary language))
